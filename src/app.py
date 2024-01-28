@@ -17,6 +17,8 @@ app = Dash(__name__, external_stylesheets=external_stylesheets)
 
 company_list = sp.load_companies_data()
 financials = sp.load_company_financials()
+industrials = financials[financials["Sector"] == "Industrials"]
+
 
 app.layout = html.Div([
     dmc.Title('Stock Market Analysis', color="black", size="h1"),
@@ -25,6 +27,7 @@ app.layout = html.Div([
     # table listing s&p 500 companies
     dmc.Text("S&P 500 Companies", size="xl", align="left"),
     dmc.Space(h=10),
+
     # dash_table.DataTable(data=company_list.to_dict('records'), page_size=10,
     #                      style_cell={'textAlign': 'left'}),
     dash_table.DataTable(
@@ -49,14 +52,32 @@ app.layout = html.Div([
 
     html.Div(id='datatable-interactivity-container'),
 
-    # dcc.Graph(figure=px.scatter(financials, x="Name", y="Price", color="Sector", facet_col="Sector",
-    #                         title="Stock Prices by Company"), style={'width': '500vh', 'height': '120vh'}),
+    # dcc.Graph(px.scatter(financials[financials["Sector"] == "Industrials"], x="Name", y="Price",
+    #                      title='Stock Prices for Industrials', color="Sector")),
+
+    dcc.Graph(figure=px.violin(financials, x="Sector", y="Price", color="Sector", hover_data=["Name"],
+                                title="Stock Prices by Sector"), style={'height': '100vh'}),
+
+    # html.Div(className='row', children=[
+    #     html.Div(className='six columns', children=[
+    #         dcc.Graph(figure=px.scatter(financials[financials["Sector"] == "Industrials"], x="Name", y="Price",
+    #                              title='Stock Prices for Industrials', color="Sector"),
+    #                   style={'width': '50%', 'display': 'inline-block'}),
+    #         html.Div(className='six columns', children=[
+    #             dcc.Graph(figure=px.scatter(financials[financials["Sector"] == "Health Care"], x="Name", y="Price",
+    #                                  title='Stock Prices for Health Care', color="Sector"),
+    #                       style={'width': '50%', 'display': 'inline-block'}),
+    #     ]),
+    # ]),
+
+    # dcc.Graph(figure=px.scatter(financials["Sector"], x=financials["Name"], y="Price", color=sec)),
 
 
     # box plot showing earnings/share by sector
     dmc.Text("Earnings/Share by Sector", size="xl", align="left"),
     dmc.Space(h=10),
-    dcc.Graph(figure=px.box(financials, x="Sector", y="Earnings/Share", color="Sector", hover_data=["Name"])),
+    dcc.Graph(figure=px.box(financials, x="Sector", y="Earnings/Share", color="Sector", hover_data=["Name"]),
+              style={'height': '100vh'}),
 
     # 3D scatter plot
     dmc.Text("Price by Price/Earnings by Earnings/Share", size="xl", align="left"),
@@ -80,17 +101,11 @@ app.layout = html.Div([
     dmc.Space(h=10),
     dcc.Graph(figure=px.box(financials, x="Sector", y="Dividend Yield", color="Sector", hover_data=["Name"])),
 
-    dcc.Graph(figure=px.bar(financials.sort_values("Name"), x="Name", y="Price", color="Sector",
-                      title="Stock Prices by Company")),
-
-    dcc.Graph(figure=px.bar(financials.sort_values("Name"), x="Name", y="Market Cap",
-                            title="Market Cap by Company")),
-
-    # html.Div(className='row', children=[
-    #     html.Div(className='six columns', children=[
 
 
-        # ]),
+    # dcc.Graph(figure=px.bar(financials.sort_values("Name"), x="Name", y="Market Cap",
+    #                         title="Market Cap by Company")),
+
     # ])
 ])
 
@@ -180,4 +195,4 @@ def update_chart(slider_range):
 
 if __name__ == '__main__':
     app.run(debug=True)
-    # print(comp.load_company_financials().columns)
+    # print(financials[financials["Sector"] == "Industrials"])
