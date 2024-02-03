@@ -26,10 +26,9 @@ app.layout = html.Div([
 
     # table listing s&p 500 companies
     dmc.Text("S&P 500 Companies", size="xl", align="left"),
+    dmc.Text("All 500 companies listed on the S&P 500 index. Each of the columns in the table can be filtered to look "
+             "at specific data points"),
     dmc.Space(h=10),
-
-    # dash_table.DataTable(data=company_list.to_dict('records'), page_size=10,
-    #                      style_cell={'textAlign': 'left'}),
     dash_table.DataTable(
         id='datatable-interactivity',
         columns=[
@@ -52,14 +51,16 @@ app.layout = html.Div([
 
     html.Div(id='datatable-interactivity-container'),
 
-    # box plot showing earnings/share by sector
+    # violin plot showing earnings/share by sector
     dmc.Text("Earnings/Share by Sector", size="xl", align="left"),
+    dmc.Text("Earnings per share is a metric investors use to determine the value of a company because it is a ratio "
+             "of profitability per share. This graph shows how those metrics fluctuate per sector."),
     dmc.Space(h=10),
     dcc.Graph(figure=px.violin(financials, x="Sector", y="Earnings/Share", color="Sector", hover_data=["Name"])
               .update_layout(yaxis_range=[-30,45]),
               style={'height': '100vh'}),
 
-# box plot showing earnings/share by sector
+    # box plot showing earnings/share by sector
     dmc.Text("Dividend Yield by Sector", size="xl", align="left"),
     dmc.Space(h=10),
     dcc.Graph(figure=px.box(financials, x="Sector", y="Dividend Yield", color="Sector", hover_data=["Name"])),
