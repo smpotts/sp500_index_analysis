@@ -55,8 +55,16 @@ app.layout = html.Div([
     ),
     html.Div(id='datatable-interactivity-container'),
 
-    dmc.Text("VIX Volatility Index", size="xl", weight=500),
+    dmc.Text("VIX Volatility Index Close by Date", size="xl", weight=500),
+    dmc.Space(h=10),
+    dmc.Text("The VIX Volatility Index is a measurement of market volatility for companies listed on the S&P 500. The "
+             "VIX is a reflection of the market risks and investor's sentiments over time. The VIX typically spikes "
+             "when the stock market crashes, which also makes it an indicator of market volume. This graph shows the "
+             "VIX closing price over time."),
+    dmc.Text("The large spikes in the graph can be attributed to the Housing Market crash "
+             "in 2008 and the Coronavirus Pandemic in 2020."),
     dcc.Graph(figure=px.line(vix, x="Date", y="VIX Close", hover_data=["Date"])),
+    dmc.Space(h=10),
 
     # violin plot showing earnings/share by sector
     dmc.Text("Earnings/Share by Sector", size="xl", align="left", weight=500),
@@ -97,14 +105,13 @@ app.layout = html.Div([
         ]),
 
     # box plot showing earnings/share by sector
-    dmc.Text("Price/Book for Top 20 Companies with Largest Market Cap", size="xl", align="left", weight=500),
+    dmc.Text("Best Price/Book for Top Companies with Largest Market Cap", size="xl", align="left", weight=500),
     dmc.Space(h=10),
     dmc.Text("Price/ book is a ratio of a company's market capitalization to book value. It is a metric investors use "
              "to determine whether a company is undervalued. P/B values under 3 are typically seen as a good investment"
              "."),
-    dmc.Space(h=10),
-    dcc.Graph(figure=px.bar(financials.sort_values("Market Cap").head(20), x="Name", y="Price/Book", color="Sector")
-              .update_layout(yaxis_range=[0,10])
+    dcc.Graph(figure=px.bar(financials.sort_values("Market Cap").where(financials["Price/Book"] <= 5).head(30), x="Name", y="Price/Book", color="Sector")
+              .update_layout(yaxis_range=[0,5])
               ,style={'height': '100vh'}),
 
     dmc.Text("Prices per Sector", size="xl", align="left", weight=500),
