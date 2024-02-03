@@ -1,10 +1,10 @@
 """
-Stock Market Analysis
+S&P 500 Index Analysis
 """
 __author__ = "Shelby Potts"
 __version__ = "0.0.0"
 
-import src.sp500_data as sp
+import src.financial_data as sp
 import plotly.express as px
 from dash import Dash, html, dash_table, dcc, Input, Output, callback
 import dash_mantine_components as dmc
@@ -17,15 +17,20 @@ app = Dash(__name__, external_stylesheets=external_stylesheets)
 
 company_list = sp.load_companies_data()
 financials = sp.load_company_financials()
-industrials = financials[financials["Sector"] == "Industrials"]
+vix = sp.load_cboe_volatility()
 
 
 app.layout = html.Div([
-    dmc.Title('Stock Market Analysis', color="black", size="h1"),
+    dmc.Title('S&P 500 Index Analysis', color="black", size="h1"),
     dmc.Space(h=20),
+    dmc.Text("The S&P 500 Index (Standard and Poor's 500), is a stock market index tracking the stock performance of "
+             "500 of the largest companies listed on stock exchanges in the United States. This is using publicly "
+             "available data sets from datahub.io and visualizing the companies and their financials."),
+    dmc.Space(h=10),
 
     # table listing s&p 500 companies
-    dmc.Text("S&P 500 Companies", size="xl", align="left"),
+    dmc.Text("S&P 500 Companies", size="xl", align="left", weight=500),
+    dmc.Space(h=10),
     dmc.Text("All 500 companies listed on the S&P 500 index. Each of the columns in the table can be filtered to look "
              "at specific data points"),
     dmc.Space(h=10),
@@ -48,11 +53,14 @@ app.layout = html.Div([
         page_current=0,
         page_size=10,
     ),
-
     html.Div(id='datatable-interactivity-container'),
 
+    dmc.Text("VIX Volatility Index", size="xl", weight=500),
+    dcc.Graph(figure=px.line(vix, x="Date", y="VIX Close", hover_data=["Date"])),
+
     # violin plot showing earnings/share by sector
-    dmc.Text("Earnings/Share by Sector", size="xl", align="left"),
+    dmc.Text("Earnings/Share by Sector", size="xl", align="left", weight=500),
+    dmc.Space(h=10),
     dmc.Text("Earnings per share is a metric investors use to determine the value of a company because it is a ratio "
              "of profitability per share. This graph shows how those metrics fluctuate per sector."),
     dmc.Space(h=10),
@@ -61,12 +69,18 @@ app.layout = html.Div([
               style={'height': '100vh'}),
 
     # box plot showing earnings/share by sector
-    dmc.Text("Dividend Yield by Sector", size="xl", align="left"),
+    dmc.Text("Dividend Yield by Sector", size="xl", align="left", weight=500),
+    dmc.Space(h=10),
+    dmc.Text("The dividend yield is how much money in dividends a company pays out to shareholders relative to the "
+             "stock price. This box plot shows the distribution of the dividend yields per sector."),
     dmc.Space(h=10),
     dcc.Graph(figure=px.box(financials, x="Sector", y="Dividend Yield", color="Sector", hover_data=["Name"])),
 
     # 3D scatter plot
-    dmc.Text("Price by Price/Earnings by Earnings/Share", size="xl", align="left"),
+    dmc.Text("Price by Price/Earnings by Earnings/Share", size="xl", align="left", weight=500),
+    dmc.Space(h=10),
+    dmc.Text("A 3D graph showing how price, price/earnings, and earnings/share relate to each other. The slider range "
+             "at the bottom can be used to look at companies where ther stock price is within a certain range."),
     dmc.Space(h=10),
     html.Div(
         [
@@ -83,13 +97,20 @@ app.layout = html.Div([
         ]),
 
     # box plot showing earnings/share by sector
-    dmc.Text("Price/Book for Top 20 Companies with Largest Market Cap", size="xl", align="left"),
+    dmc.Text("Price/Book for Top 20 Companies with Largest Market Cap", size="xl", align="left", weight=500),
+    dmc.Space(h=10),
+    dmc.Text("Price/ book is a ratio of a company's market capitalization to book value. It is a metric investors use "
+             "to determine whether a company is undervalued. P/B values under 3 are typically seen as a good investment"
+             "."),
     dmc.Space(h=10),
     dcc.Graph(figure=px.bar(financials.sort_values("Market Cap").head(20), x="Name", y="Price/Book", color="Sector")
-              # .update_layout(yaxis_range=[0,200], xaxis_range=[0,10]),
+              .update_layout(yaxis_range=[0,10])
               ,style={'height': '100vh'}),
 
-    dmc.Text("Prices by Sector", size="xl", align="left"),
+    dmc.Text("Prices per Sector", size="xl", align="left", weight=500),
+    dmc.Space(h=10),
+    dmc.Text("Scatter plots of stock prices for each sector."),
+    dmc.Space(h=10),
     html.Div(className='row', children=[
         html.Div(className='six columns', children=[
             dcc.Graph(figure=px.scatter(financials[financials["Sector"] == "Industrials"], x="Name", y="Price",
